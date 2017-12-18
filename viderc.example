@@ -1,0 +1,23 @@
+# This is an example project file, which is to be placed inside a directory
+# named "$project" in a directory from "$project_path".
+# It is sourced to start editing the project.
+# The workdir is changed to the project directory.
+#
+# It can be empty, in which case vide will just exec vim inside the project
+# directory.
+
+# Change to source directory
+cd src
+
+# Index C files from these directories
+vide_cscope_c .
+vide_cscope_c ../lib
+
+# Index also tags from assembler files
+vide_cscope_find . -type f -regex '^.*\.[sS]$'
+
+# Invoke cscope in the Kernel mode for files found above
+vide_cscope -k
+
+# Exec vim with additional settings
+exec vim -c "set ts=8 sts=8 sw=8"

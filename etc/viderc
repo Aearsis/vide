@@ -1,0 +1,14 @@
+# A boilerplate for VIDE configuration file.
+# Will be sourced from /etc/viderc and ~/.viderc
+
+# Where to look for projects
+# project_path="$CDPATH"
+
+# Where to store cached cscope databases
+# cache_path="$HOME/.cache/vide"
+
+# Also, you can do anything you want here, this file is sourced at the startup.
+# You can use these fariables:
+#       $project        Name of the project (positional argument of vide)
+
+# vim ft="bash"
