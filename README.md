@@ -25,16 +25,20 @@ $ vide myproject
 ```
 
 Vide will try to look inside predefined paths, in which it will search for
-directory named `myproject`, in which a file called `.viderc` must exist.
-It will then source the project file and execute vim.
-
-So, for example, with `project_path=$HOME/projects`, it will look for the file
+directory named `myproject`. If it finds one, it will build the It will first
+try to search for a directory that contains a project file called `.viderc`. It
+will then source the project file (if exists) and execute vim. So, for example,
+with `project_path=$HOME/projects`, it will look for the file
 `~/projects/myproject/.viderc`, and if that exists, it will execute it.
 
 Please see the example project file to have an idea what this can be useful for.
 
 Also, note that both the configuration file and the project file are called
 `viderc`. Sorry for that confusion.
+
+If there's no such directory with project file, but there happens to be
+a directory with the project name, it will open that one. Before it does, it
+indexes all C files inside by cscope.
 
 # Why the hell
 

@@ -17,13 +17,14 @@ die() {
 # Cscope handling                      #
 ########################################
 
-vide_cscope_cache_clean() {
-	>"$cache_dir/cscope.files"
+vide_cscope_files_clean() {
+	CSCOPE_FILES="$cache_dir/cscope.files"
+	>"$CSCOPE_FILES"
 }
 
 # Add files to the cscope using find - use absolute paths
 vide_cscope_find() {
-	find "$@" >>"$cache_dir/cscope.files"
+	find "$@" >>"$CSCOPE_FILES"
 }
 
 # Add files by find matching regex
@@ -41,7 +42,7 @@ vide_cscope_c() {
 # Run the cscope
 vide_cscope() {
 	export CSCOPE_DB="$cache_dir/cscope.out"
-	cscope -b -U -q -f"$CSCOPE_DB" -i"$cache_dir/cscope.files" "$@"
+	[ ! -s "$CSCOPE_FILES" ] || cscope -b -U -q -f"$CSCOPE_DB" -i"$CSCOPE_FILES" "$@"
 }
 
 ########################################
@@ -54,26 +55,45 @@ for rcfile in "/etc/viderc" "$HOME/.viderc";do
 	fi
 done
 
-if [ -z "$project_file" ]; then
+# First try to find a project with project file
+if [ -z "$project_dir" ]; then
 	for path in ${project_path//:/ };do
-		project_file="$path/$project/.viderc"
-		[ -e "$project_file" ] && break
+		file="$path/$project/.viderc"
+		[ -e "$file" ] || continue
+		project_dir="$path/$project"
+		break
 	done
 fi
 
-[ -e "$project_file" ] || die "No such project found."
+# Then fallback to at least existing directory
+if [ -z "$project_dir" ]; then
+	for path in ${project_path//:/ };do
+		project_dir="$path/$project"
+		[ -e "$project_dir" ] && break
+	done
+fi
 
+[ -e "$project_dir" ] || die "No such project found."
+
+project_file="$project_dir/.viderc"
 project_id=$(md5sum <<< $project_file | cut -c-16)
 cache_dir="$cache_path/$project_id"
 
 mkdir -p "$cache_dir"
 
-vide_cscope_cache_clean
+vide_cscope_files_clean
 
-cd $(dirname $project_file)
+cd "$project_dir"
 
-# The project file shall exec.
-source $project_file
+if [ -r "$project_file" ]; then
+	# The project file shall exec.
+	source $project_file
 
-# If not, just execute vim.
-vim
+	# If not, just execute vim.
+	exec vim
+else
+	# Default behavior
+	vide_cscope_c .
+	vide_cscope
+	exec vim
+fi
